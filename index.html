@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>White Day Surprise for 은정!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-green: #E8F5E9;
+            --bg-blue: #E3F2FD;
+            --obj-green: #A5D6A7;
+            --obj-blue: #90CAF9;
+            --btn-yes: #81C784;
+            --btn-no: #E57373;
+            --letter-paper: #FFFEF2;
+            --text-main: #4A4A4A;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
+            background-color: var(--bg-green); 
+            /* Gamja Flower 폰트 적용 */
+            font-family: 'Gamja Flower', cursive;
+            overflow: hidden; transition: background-color 1.2s ease; position: relative;
+        }
+
+        /* --- 배경 오브젝트 애니메이션 --- */
+        .bg-object {
+            position: absolute; bottom: -100px; background-color: var(--obj-green);
+            animation: floatUp linear infinite; transition: background-color 1s ease, opacity 0.5s;
+            pointer-events: none; z-index: 1;
+        }
+        .bg-object.heart { width: 22px; height: 22px; transform: rotate(var(--base-rotation)); }
+        .bg-object.heart::before, .bg-object.heart::after {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-color: inherit; border-radius: 50%;
+        }
+        .bg-object.heart::before { top: -50%; left: 0; }
+        .bg-object.heart::after { left: 50%; top: 0; }
+        .bg-object.circle { width: 18px; height: 18px; border-radius: 50%; }
+        .bg-object.square { width: 15px; height: 15px; transform: rotate(var(--base-rotation)); }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(var(--base-rotation)) scale(var(--base-scale)); opacity: 0; }
+            10% { opacity: var(--base-opacity); }
+            100% { transform: translateY(-130vh) rotate(var(--base-rotation)) scale(calc(var(--base-scale) * 1.2)); opacity: 0; }
+        }
+
+        /* --- 레이아웃 --- */
+        .main-container { z-index: 10; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
+
+        #start-screen {
+            text-align: center; background: rgba(255, 255, 255, 0.97);
+            padding: 45px 15px; border-radius: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            width: 100%; max-width: 360px; 
+            overflow: hidden;
+        }
+
+        .title-container { 
+            display: flex; align-items: center; justify-content: center; 
+            gap: 8px; margin-bottom: 20px; white-space: nowrap; 
+        }
+        .title-container h1 { color: #5C8D89; font-size: 2.1rem; margin: 0; font-weight: 400; letter-spacing: -0.5px; }
+
+        .puppy-img { width: 40px; height: auto; flex-shrink: 0; }
+        .puppy-left { animation: pulseLeft 1.8s infinite ease-in-out; animation-delay: 0.2s; }
+        .puppy-right { animation: pulseRight 2.2s infinite ease-in-out; animation-delay: 0.5s; }
+
+        @keyframes pulseLeft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pulseRight { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+
+        #start-screen p { 
+            color: var(--text-main); font-size: 1.3rem; 
+            margin-bottom: 35px; line-height: 1.4; 
+        }
+
+        .btn-container { display: flex; justify-content: center; align-items: center; gap: 20px; position: relative; }
+        .btn-wrapper { width: 110px; height: 55px; position: relative; display: flex; justify-content: center; align-items: center; }
+
+        button {
+            width: 100px; height: 50px; font-size: 1.3rem; border: none; border-radius: 50px;
+            cursor: pointer; font-family: inherit; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        #yes-btn { background-color: var(--btn-yes); }
+        #no-btn { background-color: var(--btn-no); position: absolute; z-index: 100; transition: all 0.2s ease-out; }
+
+        /* --- 편지 화면 --- */
+        #letter-screen {
+            display: none; width: 100%; max-width: 380px; height: 75vh;
+            animation: letterPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .letter {
+            background-color: var(--letter-paper); height: 100%;
+            padding: 35px 25px; border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12); border: 1px solid #EEE;
+            display: flex; flex-direction: column; position: relative;
+        }
+
+        .postcard {
+            position: absolute; top: -15px; right: -10px; width: 95px;
+            height: auto; background: white; padding: 5px 5px 12px 5px;
+            box-shadow: 3px 5px 15px rgba(0,0,0,0.2); transform: rotate(8deg);
+            border: 1px solid #ddd; z-index: 20;
+        }
+        .postcard img { width: 100%; height: auto; display: block; }
+
+        .letter-header { margin-bottom: 12px; line-height: 1.5; }
+        .letter-header div { font-size: 1.25rem; color: #555; }
+
+        /* 편지 상단과 본문을 나누는 구분선 */
+        .letter-divider {
+            border: none;
+            border-top: 2px dashed #ddd; /* 부드러운 점선 */
+            margin: 5px 0 15px 0; /* 위아래 여백 조절 */
+            width: 100%;
+        }
+        .letter-content-wrapper {
+            flex-grow: 1; overflow-y: auto; margin-top: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .letter-content-wrapper::-webkit-scrollbar { width: 5px; }
+        .letter-content-wrapper::-webkit-scrollbar-thumb { background: var(--obj-blue); border-radius: 10px; }
+
+        .letter-content { line-height: 1.8; color: var(--text-main); font-size: 1.3rem; white-space: pre-line; word-break: keep-all; }
+
+        @keyframes letterPop {
+            from { opacity: 0; transform: scale(0.7) translateY(50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="object-container"></div>
+
+    <div class="main-container">
+        <div id="start-screen">
+            <div class="title-container">
+                <img src="images/강아지 정면 1.png" class="puppy-img puppy-left" alt="강아지1">
+                <h1>화이트데이 편지!</h1>
+                <img src="images/강아지 정면 2.png" class="puppy-img puppy-right" alt="강아지2">
+            </div>
+            <img src = "images/뽀뽀.png" style = "min-width: 125px; max-width: 30%">
+            <p>편지가 도착했어요!<br>확인해죠!! >.<</p>
+            <div class="btn-container">
+                <div class="btn-wrapper">
+                    <button id="yes-btn" onclick="showLetter()">조아!!!</button>
+                </div>
+                <div class="btn-wrapper">
+                    <button id="no-btn">시러.</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="letter-screen">
+            <div class="letter">
+                <div class="postcard">
+                    <img src="images/엽서.jpeg" alt="추억 사진">
+                </div>
+
+                <div class="letter-header">
+                    <div>To: 은정이</div>
+                    <div>Date: 2026.03.14.</div>
+                </div>
+
+                <hr class="letter-divider">
+
+                <div class="letter-content-wrapper">
+                    <div class="letter-content">
+                        <strong>사랑하는 나의 여자친구 은정이에게,</strong>
+
+                        이 버튼을 누르기까지 고생 많았어! 
+                        내 장난기가 조금 심했지? ㅎㅎ
+                        
+                        전공을 살려서 너만을 위한 
+                        특별한 웹사이트를 만들어보고 싶었어. 
+                        
+                        차분하게 올라가는 파스텔 꽃가루처럼 
+                        우리의 매일이 편안하고 행복했으면 좋겠다.
+                        초록색 배경에서 파란색 배경으로 바뀐 것처럼,
+                        우리의 사랑도 더 깊고 넓어지길 바라.
+
+                        너랑 함께하는 매 순간이 나에겐 선물이야.
+                        오늘 이 작은 페이지가 너에게 
+                        큰 웃음과 감동이 되었길 바라.
+
+                        세상에서 가장 행복한 화이트 데이 보내자!
+                        항상 고맙고 많이 사랑해. ❤️
+                        
+                        <strong>- 너의 전공자 남자친구가 -</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const objectContainer = document.getElementById('object-container');
+        let currentObjColor = 'var(--obj-green)';
+        const objectTypes = ['heart', 'circle', 'square'];
+
+        function createObject() {
+            const obj = document.createElement('div');
+            const type = objectTypes[Math.floor(Math.random() * objectTypes.length)];
+            obj.classList.add('bg-object', type);
+            const scale = Math.random() * 1.5 + 0.3;
+            obj.style.setProperty('--base-scale', scale);
+            let rotation = (type === 'circle') ? 0 : Math.random() * 360;
+            obj.style.setProperty('--base-rotation', rotation + 'deg');
+            obj.style.left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 7 + 4;
+            obj.style.animationDuration = duration + 's';
+            const opacity = Math.random() * 0.5 + 0.2;
+            obj.style.setProperty('--base-opacity', opacity);
+            obj.style.backgroundColor = currentObjColor;
+            objectContainer.appendChild(obj);
+            setTimeout(() => { obj.remove(); }, (duration + 1) * 1000);
+        }
+        setInterval(createObject, 180);
+
+        const noBtn = document.getElementById('no-btn');
+        const moveNoBtn = () => {
+            if (noBtn.style.position !== 'fixed') noBtn.style.position = 'fixed';
+            const padding = 80;
+            const maxX = window.innerWidth - noBtn.clientWidth - padding;
+            const maxY = window.innerHeight - noBtn.clientHeight - padding;
+            noBtn.style.left = Math.max(padding, Math.floor(Math.random() * maxX)) + 'px';
+            noBtn.style.top = Math.max(padding, Math.floor(Math.random() * maxY)) + 'px';
+        };
+        noBtn.addEventListener('mouseover', moveNoBtn);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveNoBtn(); });
+
+        function showLetter() {
+            noBtn.style.display = 'none';
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('letter-screen').style.display = 'block';
+            document.body.style.backgroundColor = 'var(--bg-blue)';
+            currentObjColor = 'var(--obj-blue)';
+            document.querySelectorAll('.bg-object').forEach(o => o.style.backgroundColor = 'var(--obj-blue)');
+        }
+    </script>
+</body>
+</html>
